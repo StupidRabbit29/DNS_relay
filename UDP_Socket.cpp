@@ -4,6 +4,9 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
+extern string Upper_DNS;
+string Local_Host = "127.0.0.1";
+
 using namespace std;
 void DNSServer()
 {
@@ -23,11 +26,18 @@ void DNSServer()
 		return ;
 	}
 
-	//绑定IP和端口
+	//设置中继DNS的IP和端口
 	SOCKADDR_IN local;
 	local.sin_family = AF_INET;
 	local.sin_port = htons(PORT);
-	local.sin_addr.s_addr = htonl(INADDR_ANY);
+	local.sin_addr.s_addr = inet_addr(Local_Host.c_str());
+	//serAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
+
+	//设置原DNS的IP和端口
+	SOCKADDR_IN UP_DNS;
+	UP_DNS.sin_family = AF_INET;
+	UP_DNS.sin_port = htons(PORT);
+	UP_DNS.sin_addr.s_addr = inet_addr(Upper_DNS.c_str());
 
 	if (bind(sServer, (struct sockaddr*) & local, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
 	{
@@ -40,18 +50,26 @@ void DNSServer()
 	while (true)
 	{
 		char recvData[MSGSIZE] = { '\0' };
+		memset(client, 0, sizeof(SOCKADDR_IN));
 		recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
-		cout << recvData << endl;
+		//cout << recvData << endl;
 
-		//if (MyDEBUG)
-			//cout << "接收到:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << "的消息" << endl;
+		//分析数据报的来源
+		if (client.sin_addr == UP_DNS.sin_addr)
+		{
+			//取header
 
-		//test
-		//Sleep(10000);
 
-		char sendData[MSGSIZE] = { '\0' };
-		strcpy_s(sendData, "Hello Client!");
-		sendto(sServer, sendData, sizeof(sendData), 0, (sockaddr*)& client, len);
+		}
+		else if (client.sin_addr == local.sin_addr)
+		{
+			//取header
+
+			//取问题
+
+
+		}
+
 	}
 
 	closesocket(sServer);

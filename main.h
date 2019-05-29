@@ -1,7 +1,8 @@
 #pragma once
 #include <iostream>
+#include <string>
+#include <sstream>
 
-#define Upper_DNS 222.222.222.222		//原DNS IP地址
 #define PORT 53							//端口号
 #define MSGSIZE 1024					//最大数据长度
 
