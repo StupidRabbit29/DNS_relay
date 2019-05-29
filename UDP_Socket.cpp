@@ -55,13 +55,13 @@ void DNSServer()
 		//cout << recvData << endl;
 
 		//分析数据报的来源
-		if (client.sin_addr == UP_DNS.sin_addr)
+		if (client == UP_DNS)//????????
 		{
 			//取header
 
 
 		}
-		else if (client.sin_addr == local.sin_addr)
+		else// if (client.sin_addr == local.sin_addr)//????????
 		{
 			//取header
 
