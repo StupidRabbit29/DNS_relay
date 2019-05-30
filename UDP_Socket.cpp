@@ -2,13 +2,12 @@
 #include "main.h"
 
 #pragma comment(lib, "ws2_32.lib")
+using namespace std;
 
 extern char* Upper_DNS;
 const char* Local_Host = "127.0.0.1";
-vector<Waiting>Buffer;
+vector<struct Waiting>Buffer;
 
-
-using namespace std;
 void DNSServer()
 {
 	//windows socket
@@ -54,31 +53,48 @@ void DNSServer()
 		recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
 		//cout << recvData << endl;
 
+		DNSheader header;
+		char DomainName[100] = { '\0' };
+
 		//分析数据报的来源
 		if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//????????
 		{
 			//取header
+			if (Get_Header(header, recvData) == false)
+				continue;
 
-
+			for (auto it = Buffer.begin(); it != Buffer.end(); it++)
+				if ((*it).ID == header.ID && (*it).clientaddr.sin_addr.s_addr == client.sin_addr.s_addr)
+				{
+					sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)&((*it).clientaddr), len);
+					Buffer.erase(it);
+					break;
+				}
 		}
 		else// if (client.sin_addr == local.sin_addr)//????????
 		{
 			//取header
+			if (Get_Header(header, recvData) == false)
+				continue;
 
 			//取问题
-
+			QUERY_KIND query_kind = Get_Query(DomainName, recvData);
 
 			//问题类型
-			if (== Ipv4)
+			if (query_kind == Ipv4)
 				//查找IPV4的IP
 			{
-				if (== Find)
+				char IPaddr[20] = { '\0' };
+				//查表
+				SEARCH_RESULT result = Serach(DomainName, IPaddr);
+
+				if (result == Find)
 					//找到，应发送IP
 				{
 
 					continue;
 				}
-				else if (== Block)
+				else if (result == Block)
 					//应屏蔽
 				{
 
@@ -86,11 +102,16 @@ void DNSServer()
 				}
 			}
 			
-
 			//查找类型非IPV4或在对照表中未找到，应向原DNS中继
+			Waiting user;
+			user.clientaddr = client;
+			user.ID = header.ID;
+			//strcpy(user.query, DomainName);
 
+			Buffer.push_back(user);
 
-
+			//将原数据包直接发送给原DNS
+			sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& UP_DNS, len);
 		}
 
 	}

@@ -31,7 +31,7 @@ typedef struct Waiting
 {
 	struct sockaddr_in clientaddr;
 	unsigned int ID;
-	char query[100];
+	//char query[100];
 }Waiting;
 
 //bool MyDEBUG = true;
