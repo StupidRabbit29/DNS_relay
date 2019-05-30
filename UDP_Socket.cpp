@@ -50,12 +50,11 @@ void DNSServer()
 	while (true)
 	{
 		char recvData[MSGSIZE] = { '\0' };
-		memset(client, 0, sizeof(SOCKADDR_IN));
 		recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
 		//cout << recvData << endl;
 
 		//分析数据报的来源
-		if (client == UP_DNS)//????????
+		if (client.sin_addr == UP_DNS.sin_addr)//????????
 		{
 			//取header
 
