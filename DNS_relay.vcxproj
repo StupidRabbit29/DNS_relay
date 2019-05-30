@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Get_H.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="UDP_Socket.cpp" />
   </ItemGroup>
