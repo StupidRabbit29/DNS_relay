@@ -43,13 +43,22 @@ void readList() {
 		inList >> temp.Domain_Name;
 		LocalList.insert(pair<int, LocalRecord>(i, temp));
 	}
+	inList.close();
 }
 
+
+
+void printList() {
+	for (int i = 0; i < LocalList.size(); i++)
+		cout << LocalList[i].IP_Addr << LocalList[i].Domain_Name << endl;
+}
 
 
 int main(int argc, char* argv[]) {
 
 	initProgram(argc, argv[]);
 	readList();
+	printList();
 
+	return 0;
 }
