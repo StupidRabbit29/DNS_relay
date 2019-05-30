@@ -16,3 +16,12 @@ bool Get_Header(DNSheader& header, const char* src)
 // 5) Authority RRs: src[8]-src[9]: 2bytes
 // 6) Additional RRs: src[10]-src[11]: 2bytes
 */
+}
+
+
+//将报文src中的query字段中的查询域名拷贝到dest中，同时返回QTYPE
+QUERY_KIND Get_Query(char* dest, char* src)
+{
+	char* query = src + 12;
+
+}
