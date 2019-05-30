@@ -1,7 +1,10 @@
 #pragma once
+#include <WinSock2.h>
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <vector>
+
 
 #define PORT 53							//端口号
 #define MSGSIZE 1024					//最大数据长度
@@ -21,6 +24,13 @@ typedef struct DNSheader
 	unsigned short NSCOUNT;			//Number of name server RRs in authority records section
 	unsigned short ARCOUNT;			//Number of RRs in additional records section
 }DNSheader, *PtrDNSH;
+
+typedef struct Waiting
+{
+	struct sockaddr_in clientaddr;
+	unsigned int ID;
+	char query[100];
+}Waiting;
 
 //bool MyDEBUG = true;
 
