@@ -35,7 +35,7 @@ typedef struct Waiting
 //bool MyDEBUG = true;
 
 //将报文src中的header字段拷贝到dest中，返回函数是否执行成功
-bool Get_Header(char* dest, const char* src);
+bool Get_Header(DNSheader& header, const char* src);
 //将报文src中的query字段中的查询域名拷贝到dest中，同时返回QTYPE
 QUERY_KIND Get_Query(char* dest, const char* src);
 //在表中查找域名name， 将找到的IP地址存入IP，返回查找结果
