@@ -57,7 +57,9 @@ void DNSServer()
 			continue;
 
 		for (int i = 0; i < LEN; i++)
-			printf("%02x", recvData[i]);
+			printf("%02x ", (unsigned  char)recvData[i]);
+
+		cout << endl;
 
 		/*if (debug_level == 1)
 		{
@@ -142,7 +144,7 @@ void DNSServer()
 			Buffer.push_back(user);
 
 			//将原数据包直接发送给原DNS
-			sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& UP_DNS, len);
+			sendto(sServer, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
 		}
 
 	}
