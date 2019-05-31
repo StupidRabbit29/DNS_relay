@@ -94,6 +94,7 @@ void DNSServer()
 
 				cout << endl;
 				cout << "----------------------------------------------------------------------" << endl;
+				cout << "接收到:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << "的消息" << endl;
 				// 打印报文
 				if (QR == 0) cout << "查询报文 ";
 				if (QR == 1) cout << "响应报文 ";
@@ -230,11 +231,14 @@ void DNSServer()
 			
 			//查找类型非IPV4或在对照表中未找到，应向原DNS中继
 			Waiting user;
+			//user.client = sServer;
 			user.clientaddr = client;
 			user.ID = header.ID;
 			//strcpy(user.query, DomainName);
 
 			Buffer.push_back(user);
+
+			//SOCKET remote = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
 			cout << "发送给:" << inet_ntoa(UP_DNS.sin_addr) << ":" << ntohs(UP_DNS.sin_port) << endl;
 			//将原数据包直接发送给原DNS
