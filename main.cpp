@@ -78,5 +78,7 @@ int main(int argc, char* argv[]) {
 	readList();
 //	printList();
 
+	DNSServer();
+
 	return 0;
 }
