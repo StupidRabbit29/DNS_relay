@@ -18,6 +18,7 @@ bool Llockr = false;
 bool Rlocks = false;
 bool Rlockr = false;
 
+unsigned short ID = 1;
 
 void Init()
 {
@@ -250,11 +251,16 @@ unsigned __stdcall DNSServer(void* pAruguments)
 					cout << "IPV4 & NFind!!!!!!!!!" << endl;
 			}
 			
+			unsigned short temp = htons(ID);
+			memcpy(recvData, &temp, sizeof(unsigned short));
+			ID = (ID + 1) % 2333 + 1;
+
 			//查找类型非IPV4或在对照表中未找到，应向原DNS中继
 			Waiting user;
 			//user.client = sServer;
 			user.clientaddr = client;
 			user.ID = header.ID;
+			user.tempID = ID;
 			//strcpy(user.query, DomainName);
 
 			Buffer.push_back(user);

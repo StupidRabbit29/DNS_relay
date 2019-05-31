@@ -40,7 +40,8 @@ typedef struct Waiting
 {
 	//SOCKET client;
 	struct sockaddr_in clientaddr;
-	unsigned int ID;
+	unsigned short ID;
+	unsigned short tempID;
 	//char query[100];
 }Waiting;
 

@@ -8,8 +8,8 @@
 using namespace std;
 
 extern char* Upper_DNS;
-const char* Local_Host = "127.0.0.1";
-vector<struct Waiting>Buffer;
+extern const char* Local_Host;
+extern vector<struct Waiting>Buffer;
 extern int debug_level;
 
 extern SOCKET sServer;
@@ -54,11 +54,15 @@ unsigned __stdcall remote(void* pArguments)
 		if (Get_Header(header, recvData) == false)
 			continue;
 
+		unsigned short temp = ntohs(header.ID);
+
 		for (auto it = Buffer.begin(); it != Buffer.end(); it++)
-			if ((*it).ID == header.ID && (*it).clientaddr.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)
+			if ((*it).tempID == temp)
 			{
 				cout << "·¢ËÍ¸ø:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
-			
+				
+				memcpy(recvData, &(*it).ID, sizeof(unsigned short));
+				
 				Llocks = true;
 				while (true)
 				{
