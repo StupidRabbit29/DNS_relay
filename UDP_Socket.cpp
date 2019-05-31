@@ -59,7 +59,7 @@ void DNSServer()
 		for (int i = 0; i < LEN; i++)
 			printf("%02x", recvData[i]);
 
-		/*if (debug_level == 1)
+		if (debug_level == 1)
 		{
 			
 		}
@@ -92,7 +92,7 @@ void DNSServer()
 				cout << "----------------------------------------------------------------------" << endl;
 				// 打印报文
 				cout << "DNS: " << endl;
-				for (int i = 0; recvData[i] != '\0'; i++)
+				for (int i = 0; i < LEN; i++)
 				{
 					printf("%02x ", recvData[i]);
 					if ((i + 1) % 8 == 0)
@@ -107,7 +107,7 @@ void DNSServer()
 			}
 			
 
-		}*/
+		}
 
 		DNSheader header;
 		char DomainName[100] = { '\0' };
@@ -148,9 +148,11 @@ void DNSServer()
 					//找到，应发送IP
 				{
 					int index, index0 = 12;
-					string recv = recvData, send;
+					string recv, send;
 					string	Header, Query, Answer;
 					// 响应报Header
+					for (int i = 0; i < LEN; i++)
+						recv.push_back(recvData[i]);
 					Header = recv.substr(0, 12);
 					Header[2] = (char)0x85; Header[3] = (char)0x80; Header[7] = (char)0x01;
 					index = recv.find_last_of(0x01);	// 查找recvData中Query部分结尾的index
@@ -183,7 +185,7 @@ void DNSServer()
 			Buffer.push_back(user);
 
 			//将原数据包直接发送给原DNS
-			sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& UP_DNS, len);
+			sendto(sServer, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
 		}
 
 	}
