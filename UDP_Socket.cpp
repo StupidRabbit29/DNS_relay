@@ -55,6 +55,7 @@ void DNSServer()
 
 		DNSheader header;
 		char DomainName[100] = { '\0' };
+
 		//分析数据报的来源
 		if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//????????
 		{
@@ -127,7 +128,7 @@ void DNSServer()
 			Buffer.push_back(user);
 
 			//将原数据包直接发送给原DNS
-			sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, len);
+			sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& UP_DNS, len);
 		}
 
 	}

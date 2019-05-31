@@ -4,11 +4,16 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
+#include <cstring>
+#include <fstream>
 #include <iomanip>
 using namespace std;
 
 #define PORT 53							//端口号
 #define MSGSIZE 1024					//最大数据长度
+
+using namespace std;
 
 //查询种类	QTYPE
 enum QUERY_KIND{Ipv4, NIpv4};
@@ -40,5 +45,15 @@ bool Get_Header(DNSheader& header, const char* src);
 //将报文src中的query字段中的查询域名拷贝到dest中，同时返回QTYPE
 QUERY_KIND Get_Query(char* dest, char* src);
 //在表中查找域名name， 将找到的IP地址存入IP，返回查找结果
+SEARCH_RESULT Serach(const char* name, char* IP);
+
+
+
+typedef struct localrecord
+{
+	string IP_Addr;
+	string Domain_Name;
+}LocalRecord;
+
 SEARCH_RESULT Serach(const char* name, char* IP);
 string get_ip(string IPaddr);
