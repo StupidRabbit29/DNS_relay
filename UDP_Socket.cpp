@@ -1,6 +1,7 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #include "main.h"
 
+
 #pragma comment(lib, "ws2_32.lib")
 using namespace std;
 
@@ -9,33 +10,39 @@ const char* Local_Host = "127.0.0.1";
 vector<struct Waiting>Buffer;
 extern int debug_level;
 
-void DNSServer()
+
+
+SOCKET sServer;
+SOCKADDR_IN local;
+SOCKADDR_IN UP_DNS;
+
+void Init_Server()
 {
 	//windows socket
 	WORD socketVersion = MAKEWORD(2, 2);
 	WSADATA wsaData;
 	if (WSAStartup(socketVersion, &wsaData) != 0)
 	{
-		return ;
+		return;
 	}
 
 	//创建套接字
-	SOCKET sServer = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	sServer = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (sServer == INVALID_SOCKET)
 	{
 		cout << "socket error!" << endl;
-		return ;
+		return;
 	}
 
 	//设置中继DNS的IP和端口
-	SOCKADDR_IN local;
+	//SOCKADDR_IN local;
 	local.sin_family = AF_INET;
 	local.sin_port = htons(PORT);
 	local.sin_addr.s_addr = inet_addr(Local_Host);
 	//serAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
 
 	//设置原DNS的IP和端口
-	SOCKADDR_IN UP_DNS;
+	//SOCKADDR_IN UP_DNS;
 	UP_DNS.sin_family = AF_INET;
 	UP_DNS.sin_port = htons(PORT);
 	UP_DNS.sin_addr.s_addr = inet_addr(Upper_DNS);
@@ -44,7 +51,10 @@ void DNSServer()
 	{
 		cout << "bind error!" << endl;
 	}
+}
 
+unsigned __stdcall DNSServer(void* pArguments)
+{
 	SOCKADDR_IN client;
 	int len = sizeof(SOCKADDR_IN);
 
@@ -243,7 +253,6 @@ void DNSServer()
 
 	}
 
-	closesocket(sServer);
-	WSACleanup();
-	return ;
+	_endthreadex(0);
+	return 0;
 }

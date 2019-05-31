@@ -8,7 +8,7 @@ string List_Name = "dnsrelay.txt";		//默认列表名
 
 int debug_level;	//调试信息输出等级
 vector <LocalRecord> LocalList;
-
+extern SOCKET sServer;
 
 //判断debug类型
 void initProgram(int count, char* value[]) {
@@ -130,7 +130,21 @@ int main(int argc, char* argv[]) {
 //	printList();
 //	testSearch();
 
-	DNSServer();
+	Init_Server();
+
+	HANDLE handle1 = (HANDLE)_beginthreadex(NULL, 0, DNSServer, NULL, 0, NULL);
+	HANDLE handle2 = (HANDLE)_beginthreadex(NULL, 0, DNSServer, NULL, 0, NULL);
+	HANDLE handle3 = (HANDLE)_beginthreadex(NULL, 0, DNSServer, NULL, 0, NULL);
+
+	WaitForSingleObject(handle1, INFINITE);
+	CloseHandle(handle1);
+	WaitForSingleObject(handle2, INFINITE);
+	CloseHandle(handle2);
+	WaitForSingleObject(handle3, INFINITE);
+	CloseHandle(handle3);
+
+	closesocket(sServer);
+	WSACleanup();
 
 	return 0;
 }
