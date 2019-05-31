@@ -47,7 +47,7 @@ QUERY_KIND Get_Query(char* dest, char* src);
 //在表中查找域名name， 将找到的IP地址存入IP，返回查找结果
 SEARCH_RESULT Serach(const char* name, char* IP);
 string get_ip(const char* IPaddr);
-
+void DNSServer();
 
 
 typedef struct localrecord
