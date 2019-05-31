@@ -11,6 +11,8 @@
 #define PORT 53							//端口号
 #define MSGSIZE 1024					//最大数据长度
 
+using namespace std;
+
 //查询种类	QTYPE
 enum QUERY_KIND{Ipv4, NIpv4};
 //查找DNSrelay.txt的查找结果
@@ -47,7 +49,7 @@ SEARCH_RESULT Serach(const char* name, char* IP);
 
 typedef struct localrecord
 {
-	char* IP_Addr;
-	char* Domain_Name;
+	string IP_Addr;
+	string Domain_Name;
 }LocalRecord;
 

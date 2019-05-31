@@ -3,10 +3,13 @@ using namespace std;
 
 
 char* Upper_DNS/* = "222.222.222.222"*/;		//原DNS IP地址
-char* List_Name = "dnsrelay.txt";		//默认列表名
+string List_Name = "dnsrelay.txt";		//默认列表名
 
-map<int, LocalRecord> LocalList;
+//map<int, LocalRecord> LocalList;
+//map <char*, char*> LocalList;
 int debug_level;
+vector <LocalRecord> LocalList;
+
 
 void initProgram(int count, char* value[]) {
 	switch (count)
@@ -34,31 +37,44 @@ void initProgram(int count, char* value[]) {
 		break;
 	}
 }
-
 void readList() {
 	LocalRecord temp;
-	int i = 0;
 	ifstream inList(List_Name, ifstream::in);
-	for (; inList >> temp.IP_Addr;i++) {
+	for (int i = 0; inList >> temp.IP_Addr; i++) {
 		inList >> temp.Domain_Name;
-		LocalList.insert(pair<int, LocalRecord>(i, temp));
+		LocalList.push_back(temp);
+//		cout << LocalList[i].IP_Addr << ":" << LocalList[i].Domain_Name << endl;
 	}
 	inList.close();
 }
-
-
-
 void printList() {
-	for (int i = 0; i < LocalList.size(); i++)
-		cout << LocalList[i].IP_Addr << LocalList[i].Domain_Name << endl;
+	for (unsigned int i = 0; i < LocalList.size(); i++) {
+		cout << LocalList[i].IP_Addr << ":" << LocalList[i].Domain_Name << endl;
+	}
 }
+
+SEARCH_RESULT Serach(const char* name, char* IP) {
+	SEARCH_RESULT result = NFind;
+	string NAME = name;
+	for (unsigned int i = 0; i < LocalList.size(); i++) {
+		if (NAME == LocalList[i].Domain_Name)
+			if (LocalList[i].IP_Addr == "0.0.0.0")
+				result = Block;
+			else
+				result = Find;
+	}
+	return result;
+}
+
+
+
 
 
 int main(int argc, char* argv[]) {
 
-	initProgram(argc, argv[]);
+	initProgram(argc, argv);
 	readList();
-	printList();
+//	printList();
 
 	return 0;
 }
