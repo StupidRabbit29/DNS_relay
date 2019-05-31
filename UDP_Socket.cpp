@@ -7,6 +7,7 @@ using namespace std;
 extern char* Upper_DNS;
 const char* Local_Host = "127.0.0.1";
 vector<struct Waiting>Buffer;
+extern int debug_level;
 
 void DNSServer()
 {
@@ -51,7 +52,17 @@ void DNSServer()
 	{
 		char recvData[MSGSIZE] = { '\0' };
 		recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
+
 		//cout << recvData << endl;
+
+		if (debug_level == 1)
+		{
+
+		}
+		else if (debug_level == 2)
+		{
+
+		}
 
 		DNSheader header;
 		char DomainName[100] = { '\0' };
@@ -91,13 +102,29 @@ void DNSServer()
 				if (result == Find)
 					//找到，应发送IP
 				{
-
+					int index, index0 = 12;
+					string recv = recvData, send;
+					string	Header, Query, Answer;
+					// 响应报Header
+					Header = recv.substr(0, 12);
+					Header[2] = (char)0x85; Header[3] = (char)0x80; Header[7] = (char)0x01;
+					index = recv.find_last_of(0x01);	// 查找recvData中Query部分结尾的index
+					Query = recv.substr(index0, index - 11); 	// 响应报Query
+					Answer = recv.substr(index0, index - 11);
+					string TTL_L = {0x00,0x00,0x00,0x78,0x00,0x04};
+					send = Header + Query + Answer + TTL_L + get_ip(IPaddr);
+					//char sendData[1024];
+					char* sendData = const_cast<char*>(send.c_str());
+					sendto(sServer, sendData, sizeof(sendData), 0, (sockaddr*)& client, len);
 					continue;
 				}
 				else if (result == Block)
 					//应屏蔽
 				{
-
+					// Flag位应该设置为8583
+					recvData[2] = (char)0x85;
+					recvData[3] = (char)0x83;
+					sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, len);
 					continue;
 				}
 			}

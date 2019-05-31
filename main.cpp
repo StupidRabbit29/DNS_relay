@@ -130,5 +130,7 @@ int main(int argc, char* argv[]) {
 //	printList();
 //	testSearch();
 
+	DNSServer();
+
 	return 0;
 }
