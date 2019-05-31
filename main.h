@@ -11,6 +11,8 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
+#include <Windows.h>
+#include <process.h>
 using namespace std;
 
 #define PORT 53							//端口号
@@ -51,8 +53,11 @@ QUERY_KIND Get_Query(char* dest, char* src);
 //在表中查找域名name， 将找到的IP地址存入IP，返回查找结果
 SEARCH_RESULT Search(const char* name, char* IP);
 string get_ip(const char* IPaddr);
-void DNSServer();
+//void DNSServer();
 
+void Init();
+unsigned __stdcall DNSServer(void* pAruguments);
+unsigned __stdcall remote(void* pArguments);
 
 typedef struct localrecord
 {

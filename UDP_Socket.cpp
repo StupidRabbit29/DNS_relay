@@ -8,8 +8,18 @@ extern char* Upper_DNS;
 const char* Local_Host = "127.0.0.1";
 vector<struct Waiting>Buffer;
 extern int debug_level;
+SOCKET sServer;
+SOCKET UpperDNS;
+SOCKADDR_IN local;
+SOCKADDR_IN UP_DNS;
 
-void DNSServer()
+bool Llocks = false;
+bool Llockr = false;
+bool Rlocks = false;
+bool Rlockr = false;
+
+
+void Init()
 {
 	//windows socket
 	WORD socketVersion = MAKEWORD(2, 2);
@@ -20,7 +30,9 @@ void DNSServer()
 	}
 
 	//创建套接字
-	SOCKET sServer = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	sServer = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	UpperDNS = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
 	if (sServer == INVALID_SOCKET)
 	{
 		cout << "socket error!" << endl;
@@ -28,14 +40,12 @@ void DNSServer()
 	}
 
 	//设置中继DNS的IP和端口
-	SOCKADDR_IN local;
 	local.sin_family = AF_INET;
 	local.sin_port = htons(PORT);
 	local.sin_addr.s_addr = inet_addr(Local_Host);
 	//serAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
 
 	//设置原DNS的IP和端口
-	SOCKADDR_IN UP_DNS;
 	UP_DNS.sin_family = AF_INET;
 	UP_DNS.sin_port = htons(PORT);
 	UP_DNS.sin_addr.s_addr = inet_addr(Upper_DNS);
@@ -45,13 +55,36 @@ void DNSServer()
 		cout << "bind error!" << endl;
 	}
 
+	HANDLE handle1 = (HANDLE)_beginthreadex(NULL, 0, DNSServer, NULL, 0, NULL);
+	HANDLE handle2 = (HANDLE)_beginthreadex(NULL, 0, remote, NULL, 0, NULL);
+
+	WaitForSingleObject(handle1, INFINITE);
+	CloseHandle(handle1);
+	WaitForSingleObject(handle2, INFINITE);
+	CloseHandle(handle2);
+
+	WSACleanup();
+}
+unsigned __stdcall DNSServer(void* pAruguments)
+{
 	SOCKADDR_IN client;
 	int len = sizeof(SOCKADDR_IN);
 
 	while (true)
 	{
 		char recvData[MSGSIZE] = { '\0' };
-		int LEN = recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
+		int LEN;
+
+		while (true)
+		{
+			if (!Llocks)
+			{
+				Llockr = true;
+				LEN = recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
+				Llockr = false;
+				break;
+			}
+		}
 
 		if (LEN == -1)
 			continue;
@@ -119,28 +152,26 @@ void DNSServer()
 		DNSheader header;
 		char DomainName[100] = { '\0' };
 
-		
+		////分析数据报的来源
+		//if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//????????
+		//{
+		//	cout << "Packet from Upper DNS!" << endl;
+		//	//取header
+		//	if (Get_Header(header, recvData) == false)
+		//		continue;
 
-		//分析数据报的来源
-		if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//????????
-		{
-			cout << "Packet from Upper DNS!" << endl;
-			//取header
-			if (Get_Header(header, recvData) == false)
-				continue;
+		//	for (auto it = Buffer.begin(); it != Buffer.end(); it++)
+		//		if ((*it).ID == header.ID && (*it).clientaddr.sin_addr.s_addr == client.sin_addr.s_addr)
+		//		{
+		//			cout << "发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
 
-			for (auto it = Buffer.begin(); it != Buffer.end(); it++)
-				if ((*it).ID == header.ID && (*it).clientaddr.sin_addr.s_addr == client.sin_addr.s_addr)
-				{
-					cout << "发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
-
-					sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)&((*it).clientaddr), len);
-					Buffer.erase(it);
-					break;
-				}
-		}
-		else// if (client.sin_addr == local.sin_addr)//????????
-		{
+		//			sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)&((*it).clientaddr), len);
+		//			Buffer.erase(it);
+		//			break;
+		//		}
+		//}
+		//else// if (client.sin_addr == local.sin_addr)//????????
+		//{
 			cout << "Packet from client!" << endl;
 			//取header
 			if (Get_Header(header, recvData) == false)
@@ -185,10 +216,7 @@ void DNSServer()
 
 					cout << "发送给:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << endl;
 					sendto(sServer, sendData, send.size(), 0, (sockaddr*)& client, len);
-
-
-
-
+									   					 
 
 					cout << "----------------------------------------------------------------------" << endl;
 					// 打印报文
@@ -202,13 +230,6 @@ void DNSServer()
 					}
 					
 					cout << "----------------------------------------------------------------------" << endl;
-
-
-
-
-
-
-
 
 					continue;
 				}
@@ -237,17 +258,23 @@ void DNSServer()
 			//strcpy(user.query, DomainName);
 
 			Buffer.push_back(user);
-
-			//SOCKET remote = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
+			
 			cout << "发送给:" << inet_ntoa(UP_DNS.sin_addr) << ":" << ntohs(UP_DNS.sin_port) << endl;
-			//将原数据包直接发送给原DNS
-			sendto(sServer, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
-		}
-
+			
+			Rlocks = true;
+			while (true)
+			{
+				if (!Rlockr)
+				{//将原数据包直接发送给原DNS
+					sendto(UpperDNS, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
+				}
+			}
+			Rlocks = false;
+	
 	}
 
 	closesocket(sServer);
-	WSACleanup();
-	return ;
+
+	_endthreadex(0);
+	return 0;
 }
