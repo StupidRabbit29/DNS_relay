@@ -103,7 +103,7 @@ void DNSServer()
 				// ´òÓ¡²ÎÊı
 				cout << endl;
 				cout << "*ID: " << header.ID << endl;
-				cout << "*QR: " << QR << "  *OPCODE: " << OPCODE << "  *AA: " << AA << "  *TC: " << TC << "  *RD: " << RD << "  *RA: " << "  *Z: " << ZZ << "  *RCODE: " << RCODE << endl;
+				cout << "*QR: " << QR << "  *OPCODE: " << OPCODE << "  *AA: " << AA << "  *TC: " << TC << "  *RD: " << RD << "  *RA: " << RA << "  *Z: " << ZZ << "  *RCODE: " << RCODE << endl;
 				cout << "*QDCOUNT: " << header.QDCOUNT << "  *ANCOUNT: " << header.ANCOUNT << "  *NSCOUNT: " << header.NSCOUNT << "  *ARCOUNT: " << header.ARCOUNT << endl;
 				cout << "----------------------------------------------------------------------" << endl;
 			}

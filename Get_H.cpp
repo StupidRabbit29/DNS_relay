@@ -10,24 +10,24 @@ bool Get_Header(DNSheader& header, const char* src)
 	*(ptr + 1) = src[1];
 	header.ID = ntohs(tmp);
 	// 2) CtrlCode: src[2]-src[3]: 2bytes
-	*ptr = src[0];
-	*(ptr + 1) = src[1];
+	*ptr = src[2];
+	*(ptr + 1) = src[3];
 	header.CtrlCode = ntohs(tmp);
 	// 3) Questions: src[4]-src[5]: 2bytes
-	*ptr = src[0];
-	*(ptr + 1) = src[1];
+	*ptr = src[4];
+	*(ptr + 1) = src[5];
 	header.QDCOUNT = ntohs(tmp);
 	// 4) Answer RRs: src[6]-src[7]: 2bytes
-	*ptr = src[0];
-	*(ptr + 1) = src[1];
+	*ptr = src[6];
+	*(ptr + 1) = src[7];
 	header.ANCOUNT = ntohs(tmp);
 	// 5) Authority RRs: src[8]-src[9]: 2bytes
-	*ptr = src[0];
-	*(ptr + 1) = src[1];
+	*ptr = src[8];
+	*(ptr + 1) = src[9];
 	header.NSCOUNT = ntohs(tmp);
 	// 6) Additional RRs: src[10]-src[11]: 2bytes
-	*ptr = src[0];
-	*(ptr + 1) = src[1];
+	*ptr = src[10];
+	*(ptr + 1) = src[11];
 	header.ARCOUNT = ntohs(tmp);
 
 	return true;
