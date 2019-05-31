@@ -76,17 +76,17 @@ unsigned __stdcall DNSServer(void* pAruguments)
 		char recvData[MSGSIZE] = { '\0' };
 		int LEN;
 
-		while (true)
+		/*while (true)
 		{
 			if (!Llocks)
 			{
-				Llockr = true;
+				Llockr = true;*/
 				LEN = recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
-				Llockr = false;
-				break;
-			}
-			Sleep(20);
-		}
+		//		Llockr = false;
+		//		break;
+		//	}
+		//	//Sleep(20);
+		//}
 
 		if (LEN == -1)
 			continue;
@@ -268,17 +268,17 @@ unsigned __stdcall DNSServer(void* pAruguments)
 			
 			cout << "发送给:" << inet_ntoa(UP_DNS.sin_addr) << ":" << ntohs(UP_DNS.sin_port) << endl;
 			
-			Rlocks = true;
-			while (true)
-			{
-				if (!Rlockr)
-				{//将原数据包直接发送给原DNS
+			//Rlocks = true;
+			//while (true)
+			//{
+			//	if (!Rlockr)
+			//	{//将原数据包直接发送给原DNS
 					sendto(UpperDNS, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
-					break;
-				}
-				Sleep(20);
-			}
-			Rlocks = false;
+			//		break;
+			//	}
+			//	//Sleep(20);
+			//}
+			//Rlocks = false;
 	
 	}
 

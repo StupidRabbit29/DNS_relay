@@ -32,17 +32,17 @@ unsigned __stdcall remote(void* pArguments)
 		char recvData[MSGSIZE] = { '\0' };
 		int LEN;
 
-		while (true)
+		/*while (true)
 		{
 			if (!Rlocks)
 			{
-				Rlockr = true;
+				Rlockr = true;*/
 				LEN = recvfrom(UpperDNS, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
-				Rlockr = false;
-				break;
-			}
-			Sleep(20);
-		}
+		//		Rlockr = false;
+		//		break;
+		//	}
+		//	//Sleep(20);
+		//}
 
 		if (LEN == -1)
 			continue;
@@ -65,17 +65,17 @@ unsigned __stdcall remote(void* pArguments)
 				
 				memcpy(recvData, &(*it).ID, sizeof(unsigned short));
 				
-				Llocks = true;
+				/*Llocks = true;
 				while (true)
 				{
 					if (!Llockr)
-					{
+					{*/
 						sendto(sServer, recvData, LEN, 0, (sockaddr*) & ((*it).clientaddr), len);
-						break;
-					}
-					Sleep(20);
-				}
-				Llocks = false;
+				//		break;
+				//	}
+				//	//Sleep(20);
+				//}
+				//Llocks = false;
 				
 				Buffer.erase(it);
 				break;
