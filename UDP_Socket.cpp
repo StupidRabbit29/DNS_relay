@@ -130,6 +130,8 @@ void DNSServer()
 			for (auto it = Buffer.begin(); it != Buffer.end(); it++)
 				if ((*it).ID == header.ID && (*it).clientaddr.sin_addr.s_addr == client.sin_addr.s_addr)
 				{
+					cout << "发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
+
 					sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)&((*it).clientaddr), len);
 					Buffer.erase(it);
 					break;
@@ -170,6 +172,8 @@ void DNSServer()
 					send = Header + Query + Answer + TTL_L + get_ip(IPaddr);
 					//char sendData[1024];
 					char* sendData = const_cast<char*>(send.c_str());
+
+					cout << "发送给:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << endl;
 					sendto(sServer, sendData, send.size(), 0, (sockaddr*)& client, len);
 					continue;
 				}
@@ -179,7 +183,9 @@ void DNSServer()
 					// Flag位应该设置为8583
 					recvData[2] = (char)0x85;
 					recvData[3] = (char)0x83;
-					sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, len);
+
+					cout << "发送给:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << endl;
+					sendto(sServer, recvData, LEN, 0, (sockaddr*)& client, len);
 					continue;
 				}
 			}
@@ -192,6 +198,7 @@ void DNSServer()
 
 			Buffer.push_back(user);
 
+			cout << "发送给:" << inet_ntoa(UP_DNS.sin_addr) << ":" << ntohs(UP_DNS.sin_port) << endl;
 			//将原数据包直接发送给原DNS
 			sendto(sServer, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
 		}
