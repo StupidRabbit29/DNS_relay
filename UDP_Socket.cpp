@@ -51,11 +51,15 @@ void DNSServer()
 	while (true)
 	{
 		char recvData[MSGSIZE] = { '\0' };
-		recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
+		int LEN = recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
 
-		//cout << recvData << endl;
+		if (LEN == -1)
+			continue;
 
-		if (debug_level == 1)
+		for (int i = 0; i < LEN; i++)
+			printf("%02x", recvData[i]);
+
+		/*if (debug_level == 1)
 		{
 			
 		}
@@ -103,7 +107,7 @@ void DNSServer()
 			}
 			
 
-		}
+		}*/
 
 		DNSheader header;
 		char DomainName[100] = { '\0' };
@@ -138,7 +142,7 @@ void DNSServer()
 			{
 				char IPaddr[20] = { '\0' };
 				//查表
-				SEARCH_RESULT result = Serach(DomainName, IPaddr);
+				SEARCH_RESULT result = Search(DomainName, IPaddr);
 
 				if (result == Find)
 					//找到，应发送IP
