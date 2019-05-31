@@ -11,6 +11,8 @@
 #include <cstring>
 #include <fstream>
 #include <iomanip>
+#include <windows.h>
+#include <process.h>
 using namespace std;
 
 #define PORT 53							//¶Ë¿ÚºÅ
@@ -36,7 +38,7 @@ typedef struct DNSheader
 
 typedef struct Waiting
 {
-	SOCKET client;
+	//SOCKET client;
 	struct sockaddr_in clientaddr;
 	unsigned int ID;
 	//char query[100];
