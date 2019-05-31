@@ -60,8 +60,10 @@ SEARCH_RESULT Serach(const char* name, char* IP) {
 		if (NAME == LocalList[i].Domain_Name)
 			if (LocalList[i].IP_Addr == "0.0.0.0")
 				result = Block;
-			else
+			else {
 				result = Find;
+				IP = (char*)LocalList[i].IP_Addr.data();
+			}
 	}
 	return result;
 }
