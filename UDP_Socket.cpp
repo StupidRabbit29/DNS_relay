@@ -56,6 +56,8 @@ void DNSServer()
 		if (LEN == -1)
 			continue;
 
+		if (debug_level == 2)
+			cout << "接收到:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << "的消息" << endl;
 		for (int i = 0; i < LEN; i++)
 			printf("%02x ", (unsigned  char)recvData[i]);
 
@@ -113,6 +115,8 @@ void DNSServer()
 
 		DNSheader header;
 		char DomainName[100] = { '\0' };
+
+		
 
 		//分析数据报的来源
 		if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//????????
