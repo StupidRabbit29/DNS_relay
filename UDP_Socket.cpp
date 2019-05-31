@@ -86,7 +86,7 @@ void DNSServer()
 			{
 				char IPaddr[20] = { '\0' };
 				//查表
-				SEARCH_RESULT result = Serach(DomainName, IPaddr);
+				SEARCH_RESULT result = Search(DomainName, IPaddr);
 
 				if (result == Find)
 					//找到，应发送IP
