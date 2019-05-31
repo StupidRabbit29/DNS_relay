@@ -95,6 +95,8 @@ void DNSServer()
 				cout << endl;
 				cout << "----------------------------------------------------------------------" << endl;
 				// 打印报文
+				if (QR == 0) cout << "查询报文 ";
+				if (QR == 1) cout << "响应报文 ";
 				cout << "DNS: " << endl;
 				for (int i = 0; i < LEN; i++)
 				{
@@ -105,7 +107,7 @@ void DNSServer()
 				// 打印参数
 				cout << endl;
 				cout << "*ID: " << header.ID << endl;
-				cout << "*QR: " << QR << "  *OPCODE: " << OPCODE << "  *AA: " << AA << "  *TC: " << TC << "  *RD: " << RD << "  *RA: " << "  *Z: " << ZZ << "  *RCODE: " << RCODE << endl;
+				cout << "*QR: " << QR << "  *OPCODE: " << OPCODE << "  *AA: " << AA << "  *TC: " << TC << "  *RD: " << RD << "  *RA: " << RA << "  *Z: " << ZZ << "  *RCODE: " << RCODE << endl;
 				cout << "*QDCOUNT: " << header.QDCOUNT << "  *ANCOUNT: " << header.ANCOUNT << "  *NSCOUNT: " << header.NSCOUNT << "  *ARCOUNT: " << header.ARCOUNT << endl;
 				cout << "----------------------------------------------------------------------" << endl;
 			}
@@ -168,7 +170,7 @@ void DNSServer()
 					send = Header + Query + Answer + TTL_L + get_ip(IPaddr);
 					//char sendData[1024];
 					char* sendData = const_cast<char*>(send.c_str());
-					sendto(sServer, sendData, sizeof(sendData), 0, (sockaddr*)& client, len);
+					sendto(sServer, sendData, send.size(), 0, (sockaddr*)& client, len);
 					continue;
 				}
 				else if (result == Block)
