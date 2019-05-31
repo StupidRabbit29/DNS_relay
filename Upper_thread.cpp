@@ -39,7 +39,9 @@ unsigned __stdcall remote(void* pArguments)
 				Rlockr = true;
 				LEN = recvfrom(UpperDNS, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
 				Rlockr = false;
+				break;
 			}
+			Sleep(20);
 		}
 
 		if (LEN == -1)
@@ -69,7 +71,9 @@ unsigned __stdcall remote(void* pArguments)
 					if (!Llockr)
 					{
 						sendto(sServer, recvData, LEN, 0, (sockaddr*) & ((*it).clientaddr), len);
+						break;
 					}
+					Sleep(20);
 				}
 				Llocks = false;
 				

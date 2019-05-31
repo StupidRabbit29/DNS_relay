@@ -15,7 +15,7 @@ SOCKADDR_IN UP_DNS;
 
 bool Llocks = false;
 bool Llockr = false;
-bool Rlocks = false;
+bool Rlocks = true;
 bool Rlockr = false;
 
 unsigned short ID = 1;
@@ -85,6 +85,7 @@ unsigned __stdcall DNSServer(void* pAruguments)
 				Llockr = false;
 				break;
 			}
+			Sleep(20);
 		}
 
 		if (LEN == -1)
@@ -273,7 +274,9 @@ unsigned __stdcall DNSServer(void* pAruguments)
 				if (!Rlockr)
 				{//将原数据包直接发送给原DNS
 					sendto(UpperDNS, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
+					break;
 				}
+				Sleep(20);
 			}
 			Rlocks = false;
 	
