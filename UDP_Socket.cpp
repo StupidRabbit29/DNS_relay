@@ -57,10 +57,51 @@ void DNSServer()
 
 		if (debug_level == 1)
 		{
-
+			
 		}
 		else if (debug_level == 2)
 		{
+			DNSheader header;
+			if (Get_Header(header, recvData) == true)
+			{
+				char _QR = 0x80, _AA = 0x04, _TC = 0x02, _RD = 0x01, _RA = 0x80;
+				int QR, OPCODE, AA, TC, RD, RA, ZZ, RCODE;
+				if (recvData[2] & _QR) QR = 1; else QR = 0;			// QR
+				if (recvData[2] & _AA) AA = 1; else AA = 0;			// AA
+				if (recvData[2] & _TC) TC = 1; else TC = 0;			// TC
+				if (recvData[2] & _RD) RD = 1; else RD = 0;			// RD
+				if (recvData[3] & _RA) RA = 1; else RA = 0;			// RA
+				// RCODE
+				if ((recvData[3] & (char)0x0f) == (char)0x03) RCODE = 3;
+				else if ((recvData[3] & (char)0x0f) == (char)0x00) RCODE = 0;
+				else RCODE = -1;
+				// ZZ
+				if ((recvData[3] & (char)0x70) == (char)0x00) ZZ = 0;
+				else ZZ = -1;
+				// OPCODE
+				if ((recvData[2] & (char)0x78) == (char)0x00) OPCODE = 0;
+				else if ((recvData[2] & (char)0x78) == (char)0x08) OPCODE = 1;
+				else if ((recvData[2] & (char)0x78) == (char)0x10) OPCODE = 2;
+				else OPCODE = -1;
+
+				cout << endl;
+				cout << "----------------------------------------------------------------------" << endl;
+				// 打印报文
+				cout << "DNS: " << endl;
+				for (int i = 0; recvData[i] != '\0'; i++)
+				{
+					printf("%02x ", recvData[i]);
+					if ((i + 1) % 8 == 0)
+						printf("\n");
+				}
+				// 打印参数
+				cout << endl;
+				cout << "*ID: " << header.ID << endl;
+				cout << "*QR: " << QR << "  *OPCODE: " << OPCODE << "  *AA: " << AA << "  *TC: " << TC << "  *RD: " << RD << "  *RA: " << "  *Z: " << ZZ << "  *RCODE: " << RCODE << endl;
+				cout << "*QDCOUNT: " << header.QDCOUNT << "  *ANCOUNT: " << header.ANCOUNT << "  *NSCOUNT: " << header.NSCOUNT << "  *ARCOUNT: " << header.ARCOUNT << endl;
+				cout << "----------------------------------------------------------------------" << endl;
+			}
+			
 
 		}
 
