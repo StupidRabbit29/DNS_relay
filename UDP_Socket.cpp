@@ -98,7 +98,7 @@ void DNSServer()
 				cout << "DNS: " << endl;
 				for (int i = 0; i < LEN; i++)
 				{
-					printf("%02x ", recvData[i]);
+					printf("%02x ", (unsigned  char)recvData[i]);
 					if ((i + 1) % 8 == 0)
 						printf("\n");
 				}
@@ -119,6 +119,7 @@ void DNSServer()
 		//分析数据报的来源
 		if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//????????
 		{
+			cout << "Packet from Upper DNS!" << endl;
 			//取header
 			if (Get_Header(header, recvData) == false)
 				continue;
@@ -133,6 +134,7 @@ void DNSServer()
 		}
 		else// if (client.sin_addr == local.sin_addr)//????????
 		{
+			cout << "Packet from client!" << endl;
 			//取header
 			if (Get_Header(header, recvData) == false)
 				continue;
@@ -144,6 +146,8 @@ void DNSServer()
 			if (query_kind == Ipv4)
 				//查找IPV4的IP
 			{
+				cout << "IPV4" << endl;
+
 				char IPaddr[20] = { '\0' };
 				//查表
 				SEARCH_RESULT result = Search(DomainName, IPaddr);
@@ -151,6 +155,7 @@ void DNSServer()
 				if (result == Find)
 					//找到，应发送IP
 				{
+					cout << "IPV4 & Find!!!!!!!!!!" << endl;
 					int index, index0 = 12;
 					string recv, send;
 					string	Header, Query, Answer;
@@ -159,25 +164,57 @@ void DNSServer()
 						recv.push_back(recvData[i]);
 					Header = recv.substr(0, 12);
 					Header[2] = (char)0x85; Header[3] = (char)0x80; Header[7] = (char)0x01;
-					index = recv.find_last_of(0x01);	// 查找recvData中Query部分结尾的index
-					Query = recv.substr(index0, index - 11); 	// 响应报Query
-					Answer = recv.substr(index0, index - 11);
+					//index = recv.find_last_of((char)0x01);	// 查找recvData中Query部分结尾的index
+					//Query = recv.substr(index0, index - 11); 	// 响应报Query
+					//Answer = recv.substr(index0, index - 11);
+					index = recv.find_first_of((char)0x00, 12);
+					Query = recv.substr(12, index - 7);
+					Answer = recv.substr(12, index - 7);
 					string TTL_L = {0x00,0x00,0x00,0x78,0x00,0x04};
 					send = Header + Query + Answer + TTL_L + get_ip(IPaddr);
 					//char sendData[1024];
 					char* sendData = const_cast<char*>(send.c_str());
 					sendto(sServer, sendData, send.size(), 0, (sockaddr*)& client, len);
+
+
+
+
+
+					cout << "----------------------------------------------------------------------" << endl;
+					// 打印报文
+					
+					cout << "DNS: " << endl;
+					for (int i = 0; i < send.size(); i++)
+					{
+						printf("%02x ", (unsigned  char)send[i]);
+						if ((i + 1) % 8 == 0)
+							printf("\n");
+					}
+					
+					cout << "----------------------------------------------------------------------" << endl;
+
+
+
+
+
+
+
+
 					continue;
 				}
 				else if (result == Block)
 					//应屏蔽
 				{
+					cout << "IPV4 & Block!!!!!!!!!" << endl;
+
 					// Flag位应该设置为8583
 					recvData[2] = (char)0x85;
 					recvData[3] = (char)0x83;
-					sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, len);
+					sendto(sServer, recvData, LEN, 0, (sockaddr*)& client, len);
 					continue;
 				}
+				else
+					cout << "IPV4 & NFind!!!!!!!!!" << endl;
 			}
 			
 			//查找类型非IPV4或在对照表中未找到，应向原DNS中继
