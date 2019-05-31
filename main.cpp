@@ -1,8 +1,8 @@
 #include "main.h"
 using namespace std;
 
-const char a[] = "10.3.9.5";	//原IP
-char* Upper_DNS = a/* = "222.222.222.222"*/;		//原DNS IP地址
+char a[] = "10.3.9.5";	//默认IP
+char* Upper_DNS = a;	//上层DNS IP地址
 string List_Name = "dnsrelay.txt";		//默认列表名
 
 
