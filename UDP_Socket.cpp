@@ -94,6 +94,7 @@ void DNSServer()
 
 				cout << endl;
 				cout << "----------------------------------------------------------------------" << endl;
+				cout << "接收到:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << "的消息" << endl;
 				// 打印报文
 				if (QR == 0) cout << "查询报文 ";
 				if (QR == 1) cout << "响应报文 ";
