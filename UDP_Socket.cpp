@@ -51,18 +51,22 @@ void DNSServer()
 	while (true)
 	{
 		char recvData[MSGSIZE] = { '\0' };
-		recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
+		int LEN = recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
 
-		//cout << recvData << endl;
+		if (LEN == -1)
+			continue;
 
-		if (debug_level == 1)
+		for (int i = 0; i < LEN; i++)
+			printf("%02x", recvData[i]);
+
+		/*if (debug_level == 1)
 		{
 
 		}
 		else if (debug_level == 2)
 		{
 
-		}
+		}*/
 
 		DNSheader header;
 		char DomainName[100] = { '\0' };
