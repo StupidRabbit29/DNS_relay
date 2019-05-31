@@ -133,7 +133,7 @@ void DNSServer()
 				{
 					cout << "发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
 
-					sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)&((*it).clientaddr), len);
+					sendto((*it).client, recvData, sizeof(recvData), 0, (sockaddr*)&((*it).clientaddr), len);
 					Buffer.erase(it);
 					break;
 				}
@@ -230,15 +230,18 @@ void DNSServer()
 			
 			//查找类型非IPV4或在对照表中未找到，应向原DNS中继
 			Waiting user;
+			user.client = sServer;
 			user.clientaddr = client;
 			user.ID = header.ID;
 			//strcpy(user.query, DomainName);
 
 			Buffer.push_back(user);
 
+			SOCKET remote = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+
 			cout << "发送给:" << inet_ntoa(UP_DNS.sin_addr) << ":" << ntohs(UP_DNS.sin_port) << endl;
 			//将原数据包直接发送给原DNS
-			sendto(sServer, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
+			sendto(remote, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
 		}
 
 	}
