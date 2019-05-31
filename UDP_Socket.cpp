@@ -147,6 +147,7 @@ void DNSServer()
 
 			//取问题
 			QUERY_KIND query_kind = Get_Query(DomainName, recvData);
+			cout << query_kind << endl;
 
 			//问题类型
 			if (query_kind == Ipv4)

@@ -40,9 +40,9 @@ QUERY_KIND Get_Query(char* dest, char* src)
 	char* query = src + 12;
 	while (*query != '\0')
 	{
-		int number = *query;
+		unsigned char number = *query;
 		query++;
-		for (int i = 0; i < number; i++)
+		for (unsigned char i = (char)0x00; i < number; i++)
 		{
 			*dest = *query;
 			dest++;
@@ -53,6 +53,7 @@ QUERY_KIND Get_Query(char* dest, char* src)
 	}
 	dest--;
 	*dest = '\0';
+	query++;
 
 	unsigned short temp;
 	char* ptr = (char*)&temp;
@@ -76,7 +77,7 @@ string get_ip(const char* IPaddr)
 	{
 		if (IPaddr[i] != '.')
 		{
-			tmp = tmp * 16 + IPaddr[i] - '0';
+			tmp = tmp * 10 + IPaddr[i] - '0';
 		}
 		else
 		{
