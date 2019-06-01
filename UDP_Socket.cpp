@@ -129,10 +129,10 @@ void DNSServer()
 			if (Get_Header(header, recvData) == false)
 				continue;
 
-			unsigned short temp = ntohs(header.ID);
-
+			unsigned short temp = header.ID;//header.ID已经经过转换，为小端法，且假ID
+											//tempID是大端法，假ID
 			for (auto it = Buffer.begin(); it != Buffer.end(); it++)
-				if ((*it).tempID == temp)
+				if ((*it).tempID == ntohs(temp))
 				{
 					cout << "发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
 
@@ -233,14 +233,14 @@ void DNSServer()
 					cout << "IPV4 & NFind!!!!!!!!!" << endl;
 			}
 			
-			unsigned short temp = htons(ID);
+			unsigned short temp = htons(ID);//ID为小端法，temp大端法
 			memcpy(recvData, &temp, sizeof(unsigned short));
 
 			//查找类型非IPV4或在对照表中未找到，应向原DNS中继
 			Waiting user;
 			user.clientaddr = client;
-			user.ID = header.ID;
-			user.tempID = ID;
+			user.ID = header.ID;//user的真ID，小端法
+			user.tempID = temp;//user的假ID，大端法
 
 			ID = (ID + 1) % 2333;
 			//strcpy(user.query, DomainName);
