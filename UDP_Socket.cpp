@@ -32,7 +32,7 @@ void DNSServer()
 	SOCKADDR_IN local;
 	local.sin_family = AF_INET;
 	local.sin_port = htons(PORT);
-	local.sin_addr.s_addr = inet_addr(Local_Host);
+	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	//serAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
 
 	//设置原DNS的IP和端口
