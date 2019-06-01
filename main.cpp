@@ -9,17 +9,45 @@ string List_Name = "dnsrelay.txt";		//默认列表名
 int debug_level;	//调试信息输出等级
 vector <LocalRecord> LocalList;
 
-
 //判断debug类型
 void initProgram(int count, char* value[]) {
 	//判断参数个数
 	switch (count)
 	{
-	//无参数
+		//无参数
 	case 1:
 		debug_level = 0;
 		break;
-	//完整参数
+		//仅指定调试等级或上层DNS
+	case 2:
+		if (strcmp(value[1], "-d") == 0)
+			debug_level = 1;
+		else
+			if (strcmp(value[1], "-dd") == 0)
+				debug_level = 2;
+			else {
+				debug_level = 0;
+				Upper_DNS = value[1];
+			}
+		break;
+		//指定调试等级和上层DNS 或 默认调试等级为0和指定上层DNS和文件
+	case 3:
+		if (strcmp(value[1], "-d") == 0) {
+			debug_level = 1;
+			Upper_DNS = value[2];
+		}
+		else
+			if (strcmp(value[1], "-dd") == 0) {
+				debug_level = 2;
+				Upper_DNS = value[2];
+			}
+			else {
+				debug_level = 0;
+				Upper_DNS = value[1];
+				List_Name = value[2];
+			}
+		break;
+		//完整参数
 	case 4:
 		if (strcmp(value[1], "-d") == 0) {
 			debug_level = 1;

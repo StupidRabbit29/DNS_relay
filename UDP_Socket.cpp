@@ -60,9 +60,13 @@ void DNSServer()
 			continue;
 
 		if (debug_level == 2)
-			cout << "接收到:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << "的消息" << endl;
-		for (int i = 0; i < LEN; i++)
-			printf("%02x ", (unsigned  char)recvData[i]);
+		{
+			cout << "\n----------------------------------------------------------------------" << endl;
+			cout << "*接收到:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << "的消息" << endl;
+		}
+			
+		/*for (int i = 0; i < LEN; i++)
+			printf("%02x ", (unsigned  char)recvData[i]);*/
 
 		cout << endl;
 
@@ -96,7 +100,7 @@ void DNSServer()
 				else OPCODE = -1;
 
 				cout << endl;
-				cout << "----------------------------------------------------------------------" << endl;
+				//cout << "----------------------------------------------------------------------" << endl;
 				// 打印报文
 				if (QR == 0) cout << "查询报文 ";
 				if (QR == 1) cout << "响应报文 ";
@@ -112,7 +116,7 @@ void DNSServer()
 				cout << "*ID: " << header.ID << endl;
 				cout << "*QR: " << QR << "  *OPCODE: " << OPCODE << "  *AA: " << AA << "  *TC: " << TC << "  *RD: " << RD << "  *RA: " << RA << "  *Z: " << ZZ << "  *RCODE: " << RCODE << endl;
 				cout << "*QDCOUNT: " << header.QDCOUNT << "  *ANCOUNT: " << header.ANCOUNT << "  *NSCOUNT: " << header.NSCOUNT << "  *ARCOUNT: " << header.ARCOUNT << endl;
-				cout << "----------------------------------------------------------------------" << endl;
+				//cout << "----------------------------------------------------------------------" << endl;
 			}
 			
 
@@ -125,8 +129,9 @@ void DNSServer()
 		//分析数据报的来源
 		if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//上层DNS服务器的信息
 		{
-			cout << "Packet from Upper DNS!" << endl;
-
+			//dubug
+			if (debug_level == 2)
+				cout << "*Packet from Upper DNS!" << endl;
 			//取header
 			if (Get_Header(header, recvData) == false)
 				continue;
@@ -138,9 +143,12 @@ void DNSServer()
 			for (auto it = Buffer.begin(); it != Buffer.end(); it++)
 				if ((*it).tempID == temp)
 				{
-					cout << "发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
+					if (debug_level == 2) 
+					{
+						cout << "*发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
+						cout << "\n----------------------------------------------------------------------" << endl;
+					}
 					
-					//将恢复数据报回复给对应用户
 					unsigned short BigID = htons((*it).ID);
 					memcpy(recvData, &BigID, sizeof(unsigned short));
 					sendto(sServer, recvData, LEN, 0, (sockaddr*)&((*it).clientaddr), len);
@@ -151,20 +159,29 @@ void DNSServer()
 		}
 		else
 		{
-			cout << "Packet from client!" << endl;
-
+			if (debug_level == 2)
+				cout << "*Packet from client!" << endl;
 			//取header
 			if (Get_Header(header, recvData) == false)
 				continue;
 
 			//取问题字段
 			QUERY_KIND query_kind = Get_Query(DomainName, recvData);
+			//cout << query_kind << endl;
+			if (debug_level == 2)
+			{
+				if (query_kind == 0)
+					cout << "*QUERY_KIND:  IPV4" << endl;
+				else
+					cout << "*QUERY_KIND:  NIPV4" << endl;
+			}
 
 			//问题类型
 			if (query_kind == Ipv4)
 				//查找IPV4的IP
 			{
-				cout << "IPV4" << endl;
+				if (debug_level == 2)
+					cout << "*IPV4" << endl;
 
 				char IPaddr[20] = { '\0' };
 				//查表
@@ -173,7 +190,8 @@ void DNSServer()
 				if (result == Find)
 					//找到，应发送IP
 				{
-					cout << "IPV4 & Find!!!!!!!!!!" << endl;
+					if (debug_level == 2)
+						cout << "*IPV4 & Find!!!!!!!!!!" << endl;
 					int index, index0 = 12;
 					string recv, send;
 					string	Header, Query, Answer;
@@ -193,39 +211,52 @@ void DNSServer()
 					//char sendData[1024];
 					char* sendData = const_cast<char*>(send.c_str());
 
-					cout << "发送给:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << endl;
-					sendto(sServer, sendData, send.size(), 0, (sockaddr*)& client, len);
-
-					cout << "----------------------------------------------------------------------" << endl;
-					// 打印报文
-					
-					cout << "DNS: " << endl;
-					for (int i = 0; i < send.size(); i++)
+					if (debug_level == 2)
 					{
-						printf("%02x ", (unsigned  char)send[i]);
-						if ((i + 1) % 8 == 0)
-							printf("\n");
+						cout << "*发送给:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << endl;
+						cout << "\n----------------------------------------------------------------------" << endl;
 					}
 					
-					cout << "----------------------------------------------------------------------" << endl;
+					sendto(sServer, sendData, send.size(), 0, (sockaddr*)& client, len);
+
+					//cout << "----------------------------------------------------------------------" << endl;
+					//// 打印报文
+					//
+					//cout << "DNS: " << endl;
+					//for (int i = 0; i < send.size(); i++)
+					//{
+					//	printf("%02x ", (unsigned  char)send[i]);
+					//	if ((i + 1) % 8 == 0)
+					//		printf("\n");
+					//}
+					//
+					//cout << "----------------------------------------------------------------------" << endl;
 
 					continue;
 				}
 				else if (result == Block)
 					//应屏蔽
 				{
-					cout << "IPV4 & Block!!!!!!!!!" << endl;
+					if (debug_level == 2)
+						cout << "*IPV4 & Block!!!!!!!!!" << endl;
 
 					// Flag位应该设置为8583
 					recvData[2] = (char)0x85;
 					recvData[3] = (char)0x83;
 
-					cout << "发送给:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << endl;
+					if (debug_level == 2)
+					{
+						cout << "*发送给:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << endl;
+						cout << "\n----------------------------------------------------------------------" << endl;
+					}
+					
 					sendto(sServer, recvData, LEN, 0, (sockaddr*)& client, len);
 					continue;
 				}
 				else
-					cout << "IPV4 & NFind!!!!!!!!!" << endl;
+					if (debug_level == 2)
+						cout << "*IPV4 & NFind!!!!!!!!!" << endl;
+
 			}
 			
 			unsigned short temp = htons(ID);//ID为小端法，temp大端法
@@ -241,8 +272,11 @@ void DNSServer()
 			//strcpy(user.query, DomainName);
 
 			Buffer.push_back(user);
-
-			cout << "发送给:" << inet_ntoa(UP_DNS.sin_addr) << ":" << ntohs(UP_DNS.sin_port) << endl;
+			if (debug_level == 2)
+			{
+				cout << "*发送给:" << inet_ntoa(UP_DNS.sin_addr) << ":" << ntohs(UP_DNS.sin_port) << endl;
+				cout << "\n----------------------------------------------------------------------" << endl;
+			}
 			//将原数据包直接发送给原DNS
 			sendto(sServer, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
 		}
