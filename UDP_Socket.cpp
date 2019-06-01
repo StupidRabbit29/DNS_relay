@@ -136,7 +136,9 @@ void DNSServer()
 				{
 					cout << "·¢ËÍ¸ø:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
 
-					memcpy(recvData, &((*it).ID), sizeof(unsigned short));
+					unsigned short BigID = htons((*it).ID);
+
+					memcpy(recvData, &BigID, sizeof(unsigned short));
 
 					sendto(sServer, recvData, LEN, 0, (sockaddr*)&((*it).clientaddr), len);
 					Buffer.erase(it);
