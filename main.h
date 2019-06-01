@@ -37,7 +37,8 @@ typedef struct DNSheader
 typedef struct Waiting
 {
 	struct sockaddr_in clientaddr;
-	unsigned int ID;
+	unsigned short ID;
+	unsigned short tempID;
 	//char query[100];
 }Waiting;
 

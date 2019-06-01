@@ -8,6 +8,7 @@ extern char* Upper_DNS;
 const char* Local_Host = "127.0.0.1";
 vector<struct Waiting>Buffer;
 extern int debug_level;
+unsigned short ID = 1;
 
 void DNSServer()
 {
@@ -31,7 +32,7 @@ void DNSServer()
 	SOCKADDR_IN local;
 	local.sin_family = AF_INET;
 	local.sin_port = htons(PORT);
-	local.sin_addr.s_addr = inet_addr(Local_Host);
+	local.sin_addr.s_addr = htonl(INADDR_ANY);
 	//serAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
 
 	//设置原DNS的IP和端口
@@ -128,12 +129,16 @@ void DNSServer()
 			if (Get_Header(header, recvData) == false)
 				continue;
 
+			unsigned short temp = ntohs(header.ID);
+
 			for (auto it = Buffer.begin(); it != Buffer.end(); it++)
-				if ((*it).ID == header.ID && (*it).clientaddr.sin_addr.s_addr == client.sin_addr.s_addr)
+				if ((*it).tempID == temp)
 				{
 					cout << "发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
 
-					sendto(sServer, recvData, sizeof(recvData), 0, (sockaddr*)&((*it).clientaddr), len);
+					memcpy(recvData, &((*it).ID), sizeof(unsigned short));
+
+					sendto(sServer, recvData, LEN, 0, (sockaddr*)&((*it).clientaddr), len);
 					Buffer.erase(it);
 					break;
 				}
@@ -228,10 +233,16 @@ void DNSServer()
 					cout << "IPV4 & NFind!!!!!!!!!" << endl;
 			}
 			
+			unsigned short temp = htons(ID);
+			memcpy(recvData, &temp, sizeof(unsigned short));
+
 			//查找类型非IPV4或在对照表中未找到，应向原DNS中继
 			Waiting user;
 			user.clientaddr = client;
 			user.ID = header.ID;
+			user.tempID = ID;
+
+			ID = (ID + 1) % 2333;
 			//strcpy(user.query, DomainName);
 
 			Buffer.push_back(user);
@@ -240,7 +251,6 @@ void DNSServer()
 			//将原数据包直接发送给原DNS
 			sendto(sServer, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
 		}
-
 	}
 
 	closesocket(sServer);
