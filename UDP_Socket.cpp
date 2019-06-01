@@ -41,6 +41,7 @@ void DNSServer()
 	UP_DNS.sin_port = htons(PORT);
 	UP_DNS.sin_addr.s_addr = inet_addr(Upper_DNS);
 
+	//将socket绑定在local地址
 	if (bind(sServer, (struct sockaddr*) & local, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
 	{
 		cout << "bind error!" << endl;
@@ -52,6 +53,7 @@ void DNSServer()
 	while (true)
 	{
 		char recvData[MSGSIZE] = { '\0' };
+		//接收数据报
 		int LEN = recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
 
 		if (LEN == -1)
@@ -116,45 +118,47 @@ void DNSServer()
 
 		}
 
+		//读取header字段
 		DNSheader header;
 		char DomainName[100] = { '\0' };
 
-		
-
 		//分析数据报的来源
-		if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//????????
+		if (client.sin_addr.s_addr == UP_DNS.sin_addr.s_addr)//上层DNS服务器的信息
 		{
 			cout << "Packet from Upper DNS!" << endl;
+
 			//取header
 			if (Get_Header(header, recvData) == false)
 				continue;
 
 			unsigned short temp = header.ID;//header.ID已经经过转换，为小端法，且假ID
 											//tempID是小端法，假ID
+
+			//寻找用户
 			for (auto it = Buffer.begin(); it != Buffer.end(); it++)
 				if ((*it).tempID == temp)
 				{
 					cout << "发送给:" << inet_ntoa((*it).clientaddr.sin_addr) << ":" << ntohs((*it).clientaddr.sin_port) << endl;
-
+					
+					//将恢复数据报回复给对应用户
 					unsigned short BigID = htons((*it).ID);
-
 					memcpy(recvData, &BigID, sizeof(unsigned short));
-
 					sendto(sServer, recvData, LEN, 0, (sockaddr*)&((*it).clientaddr), len);
 					Buffer.erase(it);
+
 					break;
 				}
 		}
-		else// if (client.sin_addr == local.sin_addr)//????????
+		else
 		{
 			cout << "Packet from client!" << endl;
+
 			//取header
 			if (Get_Header(header, recvData) == false)
 				continue;
 
-			//取问题
+			//取问题字段
 			QUERY_KIND query_kind = Get_Query(DomainName, recvData);
-			cout << query_kind << endl;
 
 			//问题类型
 			if (query_kind == Ipv4)
@@ -192,10 +196,6 @@ void DNSServer()
 					cout << "发送给:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << endl;
 					sendto(sServer, sendData, send.size(), 0, (sockaddr*)& client, len);
 
-
-
-
-
 					cout << "----------------------------------------------------------------------" << endl;
 					// 打印报文
 					
@@ -208,13 +208,6 @@ void DNSServer()
 					}
 					
 					cout << "----------------------------------------------------------------------" << endl;
-
-
-
-
-
-
-
 
 					continue;
 				}
