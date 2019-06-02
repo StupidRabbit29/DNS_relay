@@ -47,6 +47,7 @@ void DNSServer()
 		cout << "bind error!" << endl;
 	}
 
+	//用来存储客户端地址
 	SOCKADDR_IN client;
 	int len = sizeof(SOCKADDR_IN);
 
@@ -54,6 +55,7 @@ void DNSServer()
 	{
 		char recvData[MSGSIZE] = { '\0' };
 		//接收数据报
+		//接收到的数据报长度是有用的，在发送时需要
 		int LEN = recvfrom(sServer, recvData, sizeof(recvData), 0, (sockaddr*)& client, &len);
 
 		if (LEN == -1)
@@ -64,9 +66,6 @@ void DNSServer()
 			cout << "\n----------------------------------------------------------------------" << endl;
 			cout << "*接收到:" << inet_ntoa(client.sin_addr) << ":" << ntohs(client.sin_port) << "的消息" << endl;
 		}
-			
-		/*for (int i = 0; i < LEN; i++)
-			printf("%02x ", (unsigned  char)recvData[i]);*/
 
 		cout << endl;
 
@@ -150,7 +149,9 @@ void DNSServer()
 					}
 					
 					unsigned short BigID = htons((*it).ID);
+					//需要将用户的小端法真ID转换为大端法，发送给客户端
 					memcpy(recvData, &BigID, sizeof(unsigned short));
+
 					sendto(sServer, recvData, LEN, 0, (sockaddr*)&((*it).clientaddr), len);
 					Buffer.erase(it);
 
@@ -161,13 +162,14 @@ void DNSServer()
 		{
 			if (debug_level == 2)
 				cout << "*Packet from client!" << endl;
+
 			//取header
 			if (Get_Header(header, recvData) == false)
 				continue;
 
 			//取问题字段
 			QUERY_KIND query_kind = Get_Query(DomainName, recvData);
-			//cout << query_kind << endl;
+
 			if (debug_level == 2)
 			{
 				if (query_kind == 0)
@@ -253,13 +255,12 @@ void DNSServer()
 					sendto(sServer, recvData, LEN, 0, (sockaddr*)& client, len);
 					continue;
 				}
-				else
-					if (debug_level == 2)
+				else if (debug_level == 2)
 						cout << "*IPV4 & NFind!!!!!!!!!" << endl;
-
 			}
 			
 			unsigned short temp = htons(ID);//ID为小端法，temp大端法
+			//设置即将发送给远程DNS的数据报的ID值
 			memcpy(recvData, &temp, sizeof(unsigned short));
 
 			//查找类型非IPV4或在对照表中未找到，应向原DNS中继
@@ -267,16 +268,16 @@ void DNSServer()
 			user.clientaddr = client;
 			user.ID = header.ID;//user的真ID，小端法
 			user.tempID = ID;//user的假ID，小端法
-
-			ID = (ID + 1) % 2333;
-			//strcpy(user.query, DomainName);
-
 			Buffer.push_back(user);
+			
+			ID = (ID + 1) % 2333;
+			
 			if (debug_level == 2)
 			{
 				cout << "*发送给:" << inet_ntoa(UP_DNS.sin_addr) << ":" << ntohs(UP_DNS.sin_port) << endl;
 				cout << "\n----------------------------------------------------------------------" << endl;
 			}
+
 			//将原数据包直接发送给原DNS
 			sendto(sServer, recvData, LEN, 0, (sockaddr*)& UP_DNS, len);
 		}
